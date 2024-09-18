@@ -30,6 +30,8 @@ class RipCommunication(Device):
         super().__init__(index, number_of_devices, medium)
         
         self.neighbors = [] # generate an appropriate list
+        self.neighbors.append((self.index() + 1) % self.number_of_devices())
+        self.neighbors.append((self.index() - 1 + self.number_of_devices()) % self.number_of_devices())
 
         self.routing_table = dict()
 
@@ -45,6 +47,8 @@ class RipCommunication(Device):
             if ingoing is None:
                 # this call is only used for synchronous networks
                 self.medium().wait_for_next_round()
+                if self.routing_table_complete():
+                    break
                 continue
 
             if type(ingoing) is RipMessage:
@@ -69,9 +73,54 @@ class RipCommunication(Device):
             # this call is only used for synchronous networks
             self.medium().wait_for_next_round()
 
-    def merge_tables(self, src, table):
+    # src: int = neigh number
+    # table: dict (int, int) = routing_table
+        # row: int
+    # table is the src's routing_table
+    def merge_tables(self, src: int, table: dict):
         # return None if the table does not change
-        pass
+        temp_table = self.routing_table.copy()
+        
+        
+        ## not my code! Copied from a solution
+        # for destination, (link, distance) in table.items():
+        #     if destination not in temp_table:
+        #         temp_table[destination] = (src, distance + 1)
+        #         continue
+        #     if distance + 1 < temp_table[destination][1]:
+        #         temp_table[destination] = (src, distance + 1)
+            
+        
+        
+        ## I do not get why this does not work. I am positive that I follow the pseudocode, but clearly something is misunderstood
+        for rr_destination, (rr_link, rr_cost) in table.items():
+            if rr_link != src:
+                table[rr_destination] = (src, rr_cost + 1)
+                
+                if (rr_destination not in self.routing_table):
+                    self.routing_table[rr_destination] = (rr_link, rr_cost)
+                else:
+                    for rl_destination, (rl_link, rl_cost) in self.routing_table.items():
+                        if rr_destination == rl_destination and (rr_cost < rl_cost or rl_link == src):
+                            self.routing_table[rl_destination] = table[rr_destination]
+                            # table[i][1] < self.routing_table[i][1]    --> remote node has better route
+                            # self.routing_table[0][0] == self.index()  --> remote node is more authorative
+        
+        
+        ## This code comes from a solution
+        if temp_table == self.routing_table:
+            return None
+        
+        return temp_table    
+    
+    def routing_table_complete(self) -> bool:
+        if len(self.routing_table) < self.number_of_devices() - 1:
+            return False
+        for row in self.routing_table:
+            (link, distance) = self.routing_table[row]
+            if distance > (self.number_of_devices() / 2):
+                return False
+            return True
 
 
     def print_result(self):
