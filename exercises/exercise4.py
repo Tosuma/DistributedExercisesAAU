@@ -362,7 +362,7 @@ class SuzukiKasami(WorkerDevice):
                 if self._token is not None:
                     self._working = True
                     self.do_work()
-                    # make sure we cleanup the message queue before continuing
+                    # making sure we cleanup the message queue before continuing
                     self.handle_messages()
                     self.release()
                 else:

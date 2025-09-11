@@ -205,7 +205,7 @@ For all exercises today, you can use the `sync` network type - but most algorith
    4. Discuss how you can use Paxos in "continued consensus" where you have to agree on the order of entries in a log-file
 
 # Exercise 7
-1. DS5ed exercises 18.5 and 18.13
+1. DS5ed exercises 18.10 and 18.13
 2. Sketch an architecture for the following three systems: A bulletin board (simple reddit), a bank, a version control system (e.g. GIT)
    1. Identify the system types (with respect to CAP).
    2. Which replication type is suitable, and for which parts of the system?
